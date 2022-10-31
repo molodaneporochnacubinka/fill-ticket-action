@@ -19,7 +19,7 @@ try {
     description += `Ответственный за релиз: ${actor}\n\n`;
     description += `Коммиты, попавшие в релиз:\n\n`;
 
-    const { stdoutStr: prevTagStr } = await exec.exec('git describe --abbrev=0');
+    const { stdoutStr: prevTagStr } = await exec.exec('git describe --abbrev=0 --tag');
     const prevTag = prevTagStr.replace(/\n/, '');
 
     const { stdoutStr: commits } = await exec.exec(`git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`);
