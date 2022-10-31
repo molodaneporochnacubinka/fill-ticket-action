@@ -36,7 +36,10 @@ try {
     description += `Ответственный за релиз: ${actor}\n\n`;
     description += `Коммиты, попавшие в релиз:\n\n`;
 
-    const commits = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec(`git log $(git describe --tags --abbrev=0)..${tag} --pretty=format:"%h%x09%an%x09%s"`);
+    let gitCommand = 'git log $(git describe --tags --abbrev=0)..';
+    gitCommand += `${tag} --pretty=format:"%h%x09%an%x09%s"`;
+
+    const commits = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec(gitCommand);
 
     description += commits;
 
