@@ -1,0 +1,17 @@
+name: 'Заполнение релизного тикета'
+description: 'Заполняет релизный тикет в Yandex Tracker'
+inputs:
+  token:
+    description: 'токен трекера'
+    required: true
+  x-org-id:
+    description: 'id организации'
+    required: true
+  ticket-id:
+    description: 'id тикета'
+    required: true
+  tag:
+    description: 'тег'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

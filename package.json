@@ -1,0 +1,27 @@
+{
+  "name": "fill-ticket-action",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/molodaneporochnacubinka/fill-ticket-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/molodaneporochnacubinka/fill-ticket-action/issues"
+  },
+  "homepage": "https://github.com/molodaneporochnacubinka/fill-ticket-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^5.1.1",
+    "actions-exec-listener": "^0.1.0",
+    "node-fetch": "^2.6.7"
+  }
+}
