@@ -36,10 +36,16 @@ try {
     description += `Ответственный за релиз: ${actor}\n\n`;
     description += `Коммиты, попавшие в релиз:\n\n`;
 
-    const { stdoutStr: prevTagStr } = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec('git describe --abbrev=0 --tag');
-    const prevTag = prevTagStr.replace(/\n/, '');
+    const { stdoutStr: tagsStr } = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec('git tag');
+    const tags = tagsStr.split(/\n/);
 
-    const { stdoutStr: commits } = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec(`git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`);
+    let cmd = `git log --pretty=format:"%h%x09%an%x09%s"`
+    if (tags.length > 2) {
+      const prevTag = tags[tags.length - 3];
+      cmd = `git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`
+    }
+
+    const { stdoutStr: commits } = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec(cmd);
 
     description += commits;
 

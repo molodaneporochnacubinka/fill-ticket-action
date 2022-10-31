@@ -19,10 +19,16 @@ try {
     description += `Ответственный за релиз: ${actor}\n\n`;
     description += `Коммиты, попавшие в релиз:\n\n`;
 
-    const { stdoutStr: prevTagStr } = await exec.exec('git describe --abbrev=0 --tag');
-    const prevTag = prevTagStr.replace(/\n/, '');
+    const { stdoutStr: tagsStr } = await exec.exec('git tag');
+    const tags = tagsStr.split(/\n/);
 
-    const { stdoutStr: commits } = await exec.exec(`git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`);
+    let cmd = `git log --pretty=format:"%h%x09%an%x09%s"`
+    if (tags.length > 2) {
+      const prevTag = tags[tags.length - 3];
+      cmd = `git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`
+    }
+
+    const { stdoutStr: commits } = await exec.exec(cmd);
 
     description += commits;
 
