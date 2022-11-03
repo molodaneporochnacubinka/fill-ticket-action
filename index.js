@@ -2,7 +2,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import fetch from 'node-fetch';
-// import * as exec from 'actions-exec-listener';
 import * as exec from '@actions/exec';
 
 try {
@@ -25,17 +24,11 @@ try {
     const opts = {};
     opts.listeners = {
       stdout: (data) => {
-        console.log(data);
         myOutput += data.toString();
       }
     };
     
     await exec.exec('git tag -l', [], opts);
-
-    // const { stdoutStr: tagsStr } = await exec.exec('git tag -l');
-    // const tags = tagsStr.split(/\n/);
-
-    console.log(myOutput);
 
     const tags = myOutput.split(/\n/);
 
@@ -49,11 +42,7 @@ try {
 
     await exec.exec(cmd, [], opts);
 
-    console.log(myOutput);
-
     const commits = myOutput;
-
-    // const { stdoutStr: commits } = await exec.exec(cmd);
 
     description += commits;
 
