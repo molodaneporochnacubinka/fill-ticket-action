@@ -25,6 +25,7 @@ try {
     const opts = {};
     opts.listeners = {
       stdout: (data) => {
+        console.log(data.toString());
         myOutput += data.toString();
       }
     };
