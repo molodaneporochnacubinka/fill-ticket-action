@@ -42,7 +42,7 @@ try {
     const opts = {};
     opts.listeners = {
       stdout: (data) => {
-        console.log(data.toString());
+        console.log(data);
         myOutput += data.toString();
       }
     };
