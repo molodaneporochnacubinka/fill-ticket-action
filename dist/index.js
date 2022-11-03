@@ -36,7 +36,7 @@ try {
     description += `Ответственный за релиз: ${actor}\n\n`;
     description += `Коммиты, попавшие в релиз:\n\n`;
 
-    const { stdoutStr: tagsStr } = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec('git tag');
+    const { stdoutStr: tagsStr } = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec('git tag -l');
     const tags = tagsStr.split(/\n/);
 
     let cmd = `git log --pretty=format:"%h%x09%an%x09%s"`
