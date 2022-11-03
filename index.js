@@ -2,7 +2,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import fetch from 'node-fetch';
-import * as exec from 'actions-exec-listener';
+// import * as exec from 'actions-exec-listener';
+import * as exec from '@actions/exec';
 
 try {
     const apiHost = 'https://api.tracker.yandex.net';
@@ -19,8 +20,23 @@ try {
     description += `Ответственный за релиз: ${actor}\n\n`;
     description += `Коммиты, попавшие в релиз:\n\n`;
 
-    const { stdoutStr: tagsStr } = await exec.exec('git tag -l');
-    const tags = tagsStr.split(/\n/);
+    let myOutput = '';
+
+    const opts = {};
+    opts.listeners = {
+      stdout: (data) => {
+        myOutput += data.toString();
+      }
+    };
+    
+    await exec.exec('git tag -l', [], opts);
+
+    // const { stdoutStr: tagsStr } = await exec.exec('git tag -l');
+    // const tags = tagsStr.split(/\n/);
+
+    console.log(myOutput);
+
+    const tags = myOutput.split(/\n/);
 
     let cmd = `git log --pretty=format:"%h%x09%an%x09%s"`
     if (tags.length > 2) {
@@ -28,13 +44,21 @@ try {
       cmd = `git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`
     }
 
-    const { stdoutStr: commits } = await exec.exec(cmd);
+    myOutput = '';
+
+    await exec.exec(cmd, [], opts);
+
+    console.log(myOutput);
+
+    const commits = myOutput;
+
+    // const { stdoutStr: commits } = await exec.exec(cmd);
 
     description += commits;
 
     const url = `${apiHost}/v2/issues/${ticketId}`;
 
-    const options = {
+    const resOptions = {
         method: 'patch',
         headers: {
             Authorization: `OAuth ${token}`,
@@ -47,7 +71,7 @@ try {
         }),
     };
 
-    const response = await fetch(url, options);
+    const response = await fetch(url, resOptions);
 
     if (!response.ok) {
       throw new Error(`${response.status} ${response.statusText}`);

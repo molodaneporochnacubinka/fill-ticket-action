@@ -13,12 +13,13 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(5597);
 /* harmony import */ var node_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(node_fetch__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(9478);
-/* harmony import */ var actions_exec_listener__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__nccwpck_require__.n(actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(8752);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_3__);
 
 
 
 
+// import * as exec from 'actions-exec-listener';
 
 
 try {
@@ -36,8 +37,23 @@ try {
     description += `Ответственный за релиз: ${actor}\n\n`;
     description += `Коммиты, попавшие в релиз:\n\n`;
 
-    const { stdoutStr: tagsStr } = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec('git tag -l');
-    const tags = tagsStr.split(/\n/);
+    let myOutput = '';
+
+    const opts = {};
+    opts.listeners = {
+      stdout: (data) => {
+        myOutput += data.toString();
+      }
+    };
+    
+    await _actions_exec__WEBPACK_IMPORTED_MODULE_3__.exec('git tag -l', [], opts);
+
+    // const { stdoutStr: tagsStr } = await exec.exec('git tag -l');
+    // const tags = tagsStr.split(/\n/);
+
+    console.log(myOutput);
+
+    const tags = myOutput.split(/\n/);
 
     let cmd = `git log --pretty=format:"%h%x09%an%x09%s"`
     if (tags.length > 2) {
@@ -45,13 +61,21 @@ try {
       cmd = `git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`
     }
 
-    const { stdoutStr: commits } = await actions_exec_listener__WEBPACK_IMPORTED_MODULE_3__.exec(cmd);
+    myOutput = '';
+
+    await _actions_exec__WEBPACK_IMPORTED_MODULE_3__.exec(cmd, [], opts);
+
+    console.log(myOutput);
+
+    const commits = myOutput;
+
+    // const { stdoutStr: commits } = await exec.exec(cmd);
 
     description += commits;
 
     const url = `${apiHost}/v2/issues/${ticketId}`;
 
-    const options = {
+    const resOptions = {
         method: 'patch',
         headers: {
             Authorization: `OAuth ${token}`,
@@ -64,7 +88,7 @@ try {
         }),
     };
 
-    const response = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(url, options);
+    const response = await node_fetch__WEBPACK_IMPORTED_MODULE_2___default()(url, resOptions);
 
     if (!response.ok) {
       throw new Error(`${response.status} ${response.statusText}`);
@@ -5686,79 +5710,6 @@ const request = withDefaults(endpoint.endpoint, {
 
 exports.request = request;
 //# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ 9478:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const actionsExec = __importStar(__nccwpck_require__(8752));
-exports.exec = async (command, args, options) => {
-    const originalListeners = options === null || options === void 0 ? void 0 : options.listeners;
-    let stdout = Buffer.concat([], 0);
-    let stderr = Buffer.concat([], 0);
-    let stdline = '';
-    let errline = '';
-    let debug = '';
-    const listeners = {
-        stdout: (data) => {
-            const concatData = [stdout, data];
-            const concatLength = stdout.length + data.length;
-            stdout = Buffer.concat(concatData, concatLength);
-            if ((originalListeners === null || originalListeners === void 0 ? void 0 : originalListeners.stdout) != null) {
-                originalListeners.stdout(data);
-            }
-        },
-        stderr: (data) => {
-            const concatData = [stderr, data];
-            const concatLength = stderr.length + data.length;
-            stderr = Buffer.concat(concatData, concatLength);
-            if ((originalListeners === null || originalListeners === void 0 ? void 0 : originalListeners.stderr) != null) {
-                originalListeners.stderr(data);
-            }
-        },
-        stdline: (data) => {
-            stdline += data.toString();
-            if ((originalListeners === null || originalListeners === void 0 ? void 0 : originalListeners.stdline) != null) {
-                originalListeners.stdline(data);
-            }
-        },
-        errline: (data) => {
-            stdline += data.toString();
-            if ((originalListeners === null || originalListeners === void 0 ? void 0 : originalListeners.errline) != null) {
-                originalListeners.errline(data);
-            }
-        },
-        debug: (data) => {
-            stdline += data.toString();
-            if ((originalListeners === null || originalListeners === void 0 ? void 0 : originalListeners.debug) != null) {
-                originalListeners.debug(data);
-            }
-        }
-    };
-    const exitCode = await actionsExec.exec(command, args, Object.assign(Object.assign({}, options), { listeners }));
-    return {
-        exitCode,
-        stdout,
-        stdoutStr: stdout.toString(),
-        stderr,
-        stderrStr: stderr.toString(),
-        stdline,
-        errline,
-        debug,
-    };
-};
 
 
 /***/ }),
