@@ -19,7 +19,7 @@ try {
     description += `Ответственный за релиз: ${actor}\n\n`;
     description += `Коммиты, попавшие в релиз:\n\n`;
 
-    const { stdoutStr: tagsStr } = await exec.exec('git tag');
+    const { stdoutStr: tagsStr } = await exec.exec('git tag -l');
     const tags = tagsStr.split(/\n/);
 
     let cmd = `git log --pretty=format:"%h%x09%an%x09%s"`
