@@ -19,7 +19,6 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 
-// import * as exec from 'actions-exec-listener';
 
 
 try {
@@ -42,35 +41,27 @@ try {
     const opts = {};
     opts.listeners = {
       stdout: (data) => {
-        console.log(data);
         myOutput += data.toString();
       }
     };
-    
-    await _actions_exec__WEBPACK_IMPORTED_MODULE_3__.exec('git tag -l', [], opts);
 
-    // const { stdoutStr: tagsStr } = await exec.exec('git tag -l');
-    // const tags = tagsStr.split(/\n/);
-
-    console.log(myOutput);
-
-    const tags = myOutput.split(/\n/);
-
-    let cmd = `git log --pretty=format:"%h%x09%an%x09%s"`
-    if (tags.length > 2) {
-      const prevTag = tags[tags.length - 3];
-      cmd = `git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`
-    }
-
+    let cmd = 'git rev-list --tags --skip=1 --max-count=1';
+    await _actions_exec__WEBPACK_IMPORTED_MODULE_3__.exec(cmd, [], opts);
+    const shaPrevTag = myOutput;
     myOutput = '';
-
+    cmd = 'git log --pretty=format:"%h%x09%an%x09%s"';
+    
+    if (shaPrevTag) {
+      cmd = `git describe --abbrev=0 --tags ${shaPrevTag}`;
+      await _actions_exec__WEBPACK_IMPORTED_MODULE_3__.exec(cmd, [], opts);
+      const prevTag = myOutput.replace(/\n/,'');
+      myOutput = '';
+      cmd = `git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`;
+    }
+  
     await _actions_exec__WEBPACK_IMPORTED_MODULE_3__.exec(cmd, [], opts);
 
-    console.log(myOutput);
-
     const commits = myOutput;
-
-    // const { stdoutStr: commits } = await exec.exec(cmd);
 
     description += commits;
 

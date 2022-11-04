@@ -27,19 +27,21 @@ try {
         myOutput += data.toString();
       }
     };
-    
-    await exec.exec('git tag -l', [], opts);
 
-    const tags = myOutput.split(/\n/);
-
-    let cmd = `git log --pretty=format:"%h%x09%an%x09%s"`
-    if (tags.length > 2) {
-      const prevTag = tags[tags.length - 3];
-      cmd = `git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`
-    }
-
+    let cmd = 'git rev-list --tags --skip=1 --max-count=1';
+    await exec.exec(cmd, [], opts);
+    const shaPrevTag = myOutput;
     myOutput = '';
-
+    cmd = 'git log --pretty=format:"%h%x09%an%x09%s"';
+    
+    if (shaPrevTag) {
+      cmd = `git describe --abbrev=0 --tags ${shaPrevTag}`;
+      await exec.exec(cmd, [], opts);
+      const prevTag = myOutput.replace(/\n/,'');
+      myOutput = '';
+      cmd = `git log ${prevTag}..${tag} --pretty=format:"%h%x09%an%x09%s"`;
+    }
+  
     await exec.exec(cmd, [], opts);
 
     const commits = myOutput;
